@@ -1,12 +1,69 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Page Title</title>
+<title>jQuery Web Scraping</title>
+
+<style>
+  body {background-color: powderblue;}
+  h1 {color: red;}
+  p {color: blue;}
+</style>
+
 </head>
 <body>
+<div id="content"></div>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>
+  
+  <script>
+  /* 
+CORS workaround Modified from a code snippet by Paul van den Dool
+https://stackoverflow.com/questions/42518419/html-text-scraping#answer-42528035
+*/
 
-<h1>This is a Heading</h1>
-<p>This is a paragraph.</p>
+// url to scrape
+const urlToScrape = "https://www.kinky.nl/vrouwen/eindhoven";
+
+// workaround for cross origin requests
+$.ajaxPrefilter(function (options) {
+  if (options.crossDomain && jQuery.support.cors) {
+    const http = window.location.protocol === "http:" ? "http:" : "https:";
+    options.url = http + "//cors-anywhere.herokuapp.com/" + options.url;
+  }
+});
+
+// get request
+$.ajax({
+  url: urlToScrape,
+  method: "GET"
+}).done(function (data) {
+  const html = $(data);
+  const images = html.find("img");
+  const ads = html.find("div.grid-item.d-grid");
+  let output = "";
+
+  $.each(ads, function (index, value) {
+    const adHtml = $(value).html();
+    output += adHtml;
+  });
+  output =
+    '<textarea autocomplete="off" id="src" wrap="logical">' +
+    output +
+    "</textarea>";
+  $("#content").append(output);
+});
+
+/*
+  $.each(images, function(index, value) {    // image
+    const imageSrc = $(value).attr("src");
+    const imageHtml = '<img src="' + imageSrc.replace(/_([^\.]+)/g, '_profile') + '"/>';    // link
+    const linkSrc = value.closest("a");
+    const linkHtml = '<a href="' + linkSrc + '">' + imageHtml + "</a>";
+    output += linkHtml;
+  });
+  $("#content").append(output);
+});
+*/
+  </script>
 
 </body>
 </html>
